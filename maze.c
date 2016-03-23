@@ -18,90 +18,135 @@ int main( int argc, char * argv[] )
 {
 	char temp;
 
-	struct Maze m = { .input = {0}, .walls = {0}, .dist = {0} };
+	MAZE m = { .input = {0}, .walls = {0}, .dist = {0} };
 
-	struct Coord goal = { .x = 3, .y = 3 };
+	COORD goal = { .x = 3, .y = 3 };
 
-	initGrid(&m);
+	MOUSE mouse = { .orientation = 'N', 
+				    .location = { .x = 0, .y = 0 } };
+
+	initMaze(&m);
 
 	initDist(&m, goal);
 
+	//floodfill(&m, goal, 1, &mouse);
+
 	//Reads in an input file with maze wall data (for simulation only) 
 	readMaze(&m);
+
+	printGrid(&m);
+
+	visualizeGrid(&m, mouse);
 
 	//initDist();
 	printf("done");
 }
 
 /*
- * Function name: initGrid()
- * Description: Initializes a 16 by 16 square grid. 
+ * Function name: initMaze()
+ * Description: Initializes a 16 by 16 square maze. 
  *              Lower left square is (0, 0).
- *              Initializes distances.
+ *              Initializes known walls.
  */
-void initGrid(struct Maze * m) 
+void initMaze(MAZE * m) 
 {	
   //  0 0 0 0       0 0 0 0
   //     DE TRACE   W S E N
-
   int i, j, k;
-  
-  // Map known walls
-  m->input[0][0] |= SWALL;  // Starting walls
-  m->input[0][0] |= WWALL;
-  m->input[0][0] |= EWALL;
 
-  m->input[0][1] |= SWALL;
-  m->input[0][1] |= WWALL;
+  // Map known walls
+  m->walls[0][0] = SWALL | WWALL | EWALL;  // Starting walls
+  m->walls[0][1] = SWALL | WWALL;
 
   // Map north wall
   for (int j = 0; j < SIZE; j++) 
-    m->input[SIZE-1][j] |= NWALL;
+    m->walls[SIZE-1][j] |= NWALL;
 
   // Map east wall
   for (int i = 0; i < SIZE; i++)   
-    m->input[i][SIZE-1] |= EWALL;
+    m->walls[i][SIZE-1] |= EWALL;
 
   // Map south wall
   for (int j = 0; j < SIZE; j++) 
-    m->input[0][j] |= SWALL;
+    m->walls[0][j] |= SWALL;
 
   // Map west wall
   for (int i = 0; i < SIZE; i++) 
-    m->input[i][0] |= WWALL;
+    m->walls[i][0] |= WWALL;
 }
 
-void initDist(struct Maze * m, struct Coord goal)
+/*
+ * Function name: initDist()
+ * Description: Initializes floodfill distances for 16 by 16 square maze. 
+ *              Lower left square is (0, 0).
+ *				Initializes distances starting from goal instead of mouse.
+ */
+void initDist(MAZE * maze, COORD goal)
 {
-	/*
 	int i, j, k;
-	// Initialize distances for flood fill
-	k = SIZE - 2;
-	for ( i = 0; i < SIZE; i++ ) 
-	{
-	  for ( j = 0; j < SIZE; j++) 
-	  {
-	    distance[i][j] = k;
-	    if (j < (SIZE/2 - 1) )
+	if (SIZE%2 == 1) 
+	{    // Odd size
+	    k = SIZE - 1;
+	    for (i = 0; i < SIZE; i++) {      
+	      for (j = 0; j < SIZE; j++) {
+	      maze->dist[i][j] = k;
+	      if (j < SIZE/2)
+	        k--;
+	      else
+	        k++;
+	      }
+	    }
+	    if (i < SIZE/2)
 	      k--;
-	    else if ( (j > SIZE/2 - 1) && (j < SIZE-1) )
+	    else 
 	      k++;
-	  }
-	  if (i < SIZE/2 - 1)
-	    k--;
-	  else if ( (i > SIZE/2 - 1) && (i < SIZE-1) )
-	    k++;
 	}
-	*/
+	else if (SIZE%2 == 0) 
+	{   // Even size
+		k = SIZE - 2;
+		for ( i = 0; i < SIZE; i++ ) 
+		{
+		  for ( j = 0; j < SIZE; j++) {
+		    maze->dist[i][j] = k;
+		    if (j < (SIZE/2 - 1) )
+		      k--;
+		    else if ( (j > SIZE/2 - 1) && (j < SIZE-1) )
+		      k++;
+		  }
+		  if (i < SIZE/2 - 1)
+		    k--;
+		  else if ( (i > SIZE/2 - 1) && (i < SIZE-1) )
+		    k++;
+		}
+	}	
 }
 
-void readMaze(struct Maze * m) {
+/* Function name: floodfill()
+ * Description: Runs the floodfill algorithm
+ * Result: Sets the distance of each cell from the goal cell. 
+ * Parameters: 
+ * 		m - a struct holding the maze array, 
+ *		goal - the coordinates of the goal in the maze
+ * 		init - bool to determine whether or not this call is initializing the maze
+ *		mouse - representation of the "mouse"
+ *		
+ */
+void floodfill(MAZE * m, COORD goal, MOUSE * mouse)
+{
+	//Initialize stack
+	STACK s = { .stack = {{0}}, .top = 0 }; 
+}
+
+void readMaze(MAZE * m) 
+{
 	printf("Enter custom maze: \n");
-	for(int i = SIZE-1; i >= 0; i--) {
-		for(int j = 0; j < SIZE; j++) {
-			scanf("%d", &m->input[i][j]);
+	for(int i = SIZE-1; i >= 0; i--)
+	{
+		for(int j = 0; j < SIZE; j++)
+		{
+			int temp = 0;
+			scanf("%d", &temp);
+			m->input[i][j] = (unsigned char) temp;
 		}
 	}
 }
-
-
