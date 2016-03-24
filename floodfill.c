@@ -35,50 +35,75 @@ unsigned char isDeadEnd(const unsigned char currentBlock) {
  * Return the smallest maze->dist from the surrounding maze->walls
  * that are not separated .row a wall
  */
- unsigned char getMin(MAZE * maze, COORD coord, MOUSE * mouse) 
- {
-   unsigned char min = MAX_DIST;
-   unsigned char distN;
-   unsigned char distE;
-   unsigned char distS;
-   unsigned char distW;
-   
-   distN = hasNorth(maze->walls[coord.row][coord.col]) ? MAX_DIST : maze->dist[coord.row + 1][coord.col];
-   distE = hasEast(maze->walls[coord.row][coord.col]) ? MAX_DIST : maze->dist[coord.row][coord.col + 1];
-   distS = hasSouth(maze->walls[coord.row][coord.col]) ? MAX_DIST : maze->dist[coord.row - 1][coord.col];
-   distW = hasWest(maze->walls[coord.row][coord.col]) ? MAX_DIST : maze->dist[coord.row][coord.col - 1];
-   
-   unsigned char prevOrientation = mouse->orientation;
+unsigned char getMin(MAZE * maze, COORD coord) 
+{
+  unsigned char min = MAX_DIST;
+  unsigned char distN;
+  unsigned char distE;
+  unsigned char distS;
+  unsigned char distW;
 
-   min = distN;
-   min = (distE < min) ? distE : min;
-   min = (distS < min) ? distS : min;
-   min = (distW < min) ? distW : min;
-  
-   //1. Pick the shortest route 
-   if(min == distW) 
-     mouse->orientation = 'W';
-   if(min == distS) 
-     mouse->orientation = 'S';
-   if(min == distE) 
-     mouse->orientation = 'E';
-   if(min == distN) 
-     mouse->orientation = 'N';
+  distN = hasNorth(maze->walls[coord.row][coord.col]) ? MAX_DIST : maze->dist[coord.row + 1][coord.col];
+  distE = hasEast(maze->walls[coord.row][coord.col]) ? MAX_DIST : maze->dist[coord.row][coord.col + 1];
+  distS = hasSouth(maze->walls[coord.row][coord.col]) ? MAX_DIST : maze->dist[coord.row - 1][coord.col];
+  distW = hasWest(maze->walls[coord.row][coord.col]) ? MAX_DIST : maze->dist[coord.row][coord.col - 1];
 
-   //2. If multiple shortest routes, route (N > E > S > W)
-   
-   //3. Go Straight if possible 
-   if(min == distW && prevOrientation == 'W')
-    mouse->orientation = 'W';
-   if(min == distS && prevOrientation == 'S')
-    mouse->orientation = 'S';
-   if(min == distN && prevOrientation == 'N')
+  min = distN;
+  min = (distE < min) ? distE : min;
+  min = (distS < min) ? distS : min;
+  min = (distW < min) ? distW : min;
+
+  return min;
+}
+
+unsigned char getDir(MAZE * maze, COORD coord, MOUSE * mouse)
+{
+  unsigned char min = MAX_DIST;
+  unsigned char distN;
+  unsigned char distE;
+  unsigned char distS;
+  unsigned char distW;
+
+  unsigned char orientation = mouse->orientation;
+
+  distN = hasNorth(maze->walls[coord.row][coord.col]) ? MAX_DIST : maze->dist[coord.row + 1][coord.col];
+  distE = hasEast(maze->walls[coord.row][coord.col]) ? MAX_DIST : maze->dist[coord.row][coord.col + 1];
+  distS = hasSouth(maze->walls[coord.row][coord.col]) ? MAX_DIST : maze->dist[coord.row - 1][coord.col];
+  distW = hasWest(maze->walls[coord.row][coord.col]) ? MAX_DIST : maze->dist[coord.row][coord.col - 1];
+  // 1. Pick the shortest route
+  if ( (distN < distE) && (distN < distS) && (distN < distW) )
     mouse->orientation = 'N';
-   if(min == distE && prevOrientation == 'E')
+  else if ( (distE < distN) && (distE < distS) && (distE < distW) )
     mouse->orientation = 'E';
+  else if ( (distS < distE) && (distS < distN) && (distS < distW) )
+    mouse->orientation = 'S';
+  else if ( (distW < distE) && (distW < distS) && (distW < distN) )
+    mouse->orientation = 'W';
 
-   return min;
- }
+  // 2. If multiple equally short routes, go straight if possible
+  else if ( orientation == 'N' && !hasNorth(maze->walls[mouse->location.row][mouse->location.col]) )
+    mouse->orientation = 'N';
+  else if ( orientation == 'E' && !hasEast(maze->walls[mouse->location.row][mouse->location.col]) )
+    mouse->orientation = 'E';
+  else if ( orientation == 'S' && !hasSouth(maze->walls[mouse->location.row][mouse->location.col]) )
+    mouse->orientation = 'S';
+  else if ( orientation == 'W' && !hasWest(maze->walls[mouse->location.row][mouse->location.col]) )
+    mouse->orientation = 'W';
+
+  // 3. Otherwise prioritize N > E > S > W
+  else if (!hasNorth(maze->walls[mouse->location.row][mouse->location.col]))
+    mouse->orientation = 'N';
+  else if (!hasEast(maze->walls[mouse->location.row][mouse->location.col]))
+    mouse->orientation = 'E';
+  else if (!hasSouth(maze->walls[mouse->location.row][mouse->location.col]))
+    mouse->orientation = 'S';
+  else if (!hasWest(maze->walls[mouse->location.row][mouse->location.col]))
+    mouse->orientation = 'W';
+
+  else
+    printf("Stuck... Can't find center.\n");
+
+}
 
 
 /* Function name: floodfill()
@@ -102,111 +127,192 @@ unsigned char isDeadEnd(const unsigned char currentBlock) {
  */
 unsigned char floodfill(MAZE * maze, COORD goal, MOUSE * mouse)
 {
-	// Walls
-	//  0 0 0 0       0 0 0 0
-	//    D V T       W S E N
-	// [row] [col]
-	//  N S   W E 
-	detectWalls(maze, *mouse);
 
-	//Return if we're at the center (direction is set to D for done)
-	if((mouse->location.row == goal.row && mouse->location.col == goal.col))
-		return 'D';
+  //Return if we're at the center (direction is set to D for done)
+  if((mouse->location.row == goal.row && mouse->location.col == goal.col))
+    return 'D';
 
-	//Initialize stack
-	STACK s = { .stack = {{0}}, .top = 0 }; 
+  //Initialize stack
+  STACK s = { .stack = {{0}}, .top = 0 }; 
 
-	//Update visited? 
+  //Add traces to see route 
+  if(!hasTrace(maze->walls[mouse->location.row][mouse->location.col]))
+    maze->walls[mouse->location.row][mouse->location.col] |= TRACE;
 
-	//Add traces to see route 
-	if(!hasTrace(maze->walls[mouse->location.row][mouse->location.col]))
-		maze->walls[mouse->location.row][mouse->location.col] |= TRACE;
+  // Walls
+  //  0 0 0 0       0 0 0 0
+  //    D V T       W S E N
+  // [row] [col]
+  //  N S   W E 
 
-	//Push current cell onto stack 
-	push(&s, mouse->location);
+  //Update visited? 
+
+  //If new walls discovered --> cush current cell and adj to new walls on stack
+  detectWalls(maze, *mouse);
+
+  //Push current cell onto stack 
+  push(&s, mouse->location);
+
   printf("MOUSE COORD: row: %d col: %d\n", (int) mouse->location.row, (int) mouse->location.col );
 
-	//While stack isn't empty
-	while(!empty(&s))
-	{
-		//pop a cell from the stack
-		COORD current = top(&s);
-		pop(&s);
+  //While stack isn't empty
+  while(!empty(&s))
+  {
+    //pop a cell from the stack
+    COORD current = top(&s);
+    pop(&s);
 
-		//Check if cell's value = 1 + min. value of (accessible) neighbors
+    //Check if cell's value = 1 + min. value of (accessible) neighbors
 
-		printf("BEFORE: row: %d col: %d\n", (int) current.row, (int) current.col );
-		//If yes, keep popping and checking cells 
-		if(maze->dist[current.row][current.col] == (getMin(maze, current, mouse) + 1))
-		{
-			printf("WHY AM I IN HERE\n");
-			continue;
-		}
-		//If not, change cell's value to 1 + min of (accessible) neighbors,
-		else
-		{
-			maze->dist[current.row][current.col] = getMin(maze, current, mouse) + 1;
-			//and push all of cell's (accessible) neighbors onto the stack.
-		    if(!hasNorth(maze->walls[current.row][current.col]))
-		    {
-		    	COORD north = current;
-		    	north.row++;
-          printf("CURR NORTH: row: %d col: %d\n", (int) north.row, (int) north.col );
-		    	push(&s, north);
-		    }
-		    if(!hasEast(maze->walls[current.row][current.col]))
-		    {
-		    	COORD east = current;
-		    	east.col++;
-          printf("CURR EAST: row: %d col: %d\n", (int) east.row, (int) east.col );
-		    	push(&s, east);
-		    }
-		    if(!hasSouth(maze->walls[current.row][current.col]))
-		    {
-		    	COORD south = current;
-		    	south.row--;
-          printf("CURR SOUTH: row: %d col: %d\n", (int) south.row, (int) south.col );
-		    	push(&s, south);
-		    }
-		    if(!hasWest(maze->walls[current.row][current.col]))
-		    {
-		    	COORD west = current;
-		    	west.col--;
-          printf("CURR WEST: row: %d col: %d\n", (int) west.row, (int) west.col );
-		    	push(&s, west);
-		    }
-		}
-	}
-	getMin(maze, mouse->location, mouse);
-	printf("NEXT MOVE: GO [%c]\n", mouse->orientation);	
-	return mouse->orientation;
+    printf("BEFORE: row: %d col: %d\n", (int) current.row, (int) current.col );
+
+    //If yes, keep popping and checking cells 
+    if(maze->dist[current.row][current.col] == (getMin(maze, current) + 1))
+      continue;
+
+    //If not, change cell's value to 1 + min of (accessible) neighbors,
+    else
+    {
+      maze->dist[current.row][current.col] = getMin(maze, current) + 1;
+      //and push all of cell's (accessible) neighbors onto the stack.
+      if(!hasNorth(maze->walls[current.row][current.col]))
+      {
+        COORD north = current;
+        north.row++;
+        push(&s, north);
+      }
+      if(!hasEast(maze->walls[current.row][current.col]))
+      {
+        COORD east = current;
+        east.col++;
+        push(&s, east);
+      }
+      if(!hasSouth(maze->walls[current.row][current.col]))
+      {
+        COORD south = current;
+        south.row--;
+        push(&s, south);
+      }
+      if(!hasWest(maze->walls[current.row][current.col]))
+      {
+        COORD west = current;
+        west.col--;
+        push(&s, west);
+      }
+    }
+  }
+  getDir(maze, mouse->location, mouse);
+  printf("NEXT MOVE: GO [%c]\n", mouse->orientation);	
+  return mouse->orientation;
 }
 
 void detectWalls(MAZE * maze, const MOUSE mouse) 
 {
+  unsigned char wallDetected = 0;
   // Update walls and adjacent walls
   if (hasNorth(maze->input[mouse.location.row][mouse.location.col])) 
   {
     maze->walls[mouse.location.row][mouse.location.col] |= NWALL;
     if (mouse.location.row < SIZE - 1)  // Update adjacent wall
       maze->walls[mouse.location.row + 1][mouse.location.col] |= SWALL;
+    wallDetected |= NWALL;
   }
   if (hasEast(maze->input[mouse.location.row][mouse.location.col])) 
   {
     maze->walls[mouse.location.row][mouse.location.col] |= EWALL;
     if (mouse.location.col < SIZE - 1)  // Update adjacent wall
       maze->walls[mouse.location.row][mouse.location.col + 1] |= WWALL;
+    wallDetected |= EWALL;
   }
   if (hasSouth(maze->input[mouse.location.row][mouse.location.col])) 
   {
     maze->walls[mouse.location.row][mouse.location.col] |= SWALL;
     if (mouse.location.row > 0)  // Update adjacent wall
       maze->walls[mouse.location.row - 1][mouse.location.col]  |= NWALL;
+    wallDetected |= SWALL;
   }
   if (hasWest(maze->input[mouse.location.row][mouse.location.col])) 
   {
     maze->walls[mouse.location.row][mouse.location.col] |= WWALL;
     if (mouse.location.col > 0)  // Update adjacent wall
       maze->walls[mouse.location.row][mouse.location.col - 1] |=  EWALL;
+    wallDetected |= WWALL;
+  }
+  if(wallDetected)
+    updateDist(maze, mouse, wallDetected);
+}
+
+unsigned char updateDist(MAZE * maze, const MOUSE mouse, unsigned char detectedWalls)
+{
+  STACK s = { .stack = {{0}}, .top = 0 }; 
+  //Push current cells and cells adjacent to new walls onto stack
+  push(&s, mouse.location);
+  if((detectedWalls & NWALL) == NWALL && mouse.location.row != SIZE - 1)
+  {
+    COORD north = mouse.location;
+    north.row++;
+    push(&s, north); 
+  }
+  if((detectedWalls & EWALL) == EWALL && mouse.location.col != SIZE - 1)
+  {
+    COORD east = mouse.location;
+    east.col++;
+    push(&s, east); 
+  }
+  if((detectedWalls & SWALL) == SWALL && mouse.location.row != 0)
+  {
+    COORD south = mouse.location;
+    south.row--;
+    push(&s, south); 
+  }
+  if((detectedWalls & WWALL) == WWALL && mouse.location.col != 0)
+  {
+    COORD west = mouse.location;
+    west.col--;
+    push(&s, west); 
+  }
+
+  while(!empty(&s))
+  {
+    COORD current = top(&s);
+    pop(&s);
+
+    //Do not update goal cells
+    if(maze->dist[current.row][current.col] == 0)
+      continue;
+    //If yes, keep popping and checking cells 
+    if(maze->dist[current.row][current.col] == (getMin(maze, current) + 1))
+      continue;
+
+    //If not, change cell's value to 1 + min of (accessible) neighbors,
+    else
+    {
+      maze->dist[current.row][current.col] = getMin(maze, current) + 1;
+      //and push all of cell's (accessible) neighbors onto the stack.
+      if(!hasNorth(maze->walls[current.row][current.col]))
+      {
+        COORD north = current;
+        north.row++;
+        push(&s, north);
+      }
+      if(!hasEast(maze->walls[current.row][current.col]))
+      {
+        COORD east = current;
+        east.col++;
+        push(&s, east);
+      }
+      if(!hasSouth(maze->walls[current.row][current.col]))
+      {
+        COORD south = current;
+        south.row--;
+        push(&s, south);
+      }
+      if(!hasWest(maze->walls[current.row][current.col]))
+      {
+        COORD west = current;
+        west.col--;
+        push(&s, west);
+      }
+    }
   }
 }

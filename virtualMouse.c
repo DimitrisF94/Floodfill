@@ -8,6 +8,7 @@ void mouser(MAZE * maze, const COORD goal, MOUSE * mouse)
 	//    D V T       W S E N
 	// [row] [col]
 	//  N S   W E
+  int moveCount = 0;
 	while((mouse->location.row != goal.row) || (mouse->location.col != goal.col))	
 	{
 		mouse->orientation = floodfill(maze, goal, mouse);
@@ -33,9 +34,11 @@ void mouser(MAZE * maze, const COORD goal, MOUSE * mouse)
 				printf("IDK \n");
 				break;
 		}
+    moveCount++;
 		visualizeGrid(maze, *mouse);    // Print after
 		printf("CURRENT MOUSE LOCATION: row: %d col: %d\n", (int) mouse->location.row, (int) mouse->location.col );
 		printf("CURR DIST TO CENTER: %d\n", (int) maze->dist[mouse->location.row][mouse->location.col]);
+		printf("Total Moves: %d\n", moveCount);
 		scanf("%c", &temp); // Wait for keypress
 	}
 
