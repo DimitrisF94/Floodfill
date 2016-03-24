@@ -35,7 +35,7 @@ unsigned char isDeadEnd(const unsigned char currentBlock) {
  * Return the smallest maze->dist from the surrounding maze->walls
  * that are not separated .row a wall
  */
- unsigned char getMin(MAZE * maze, COORD coord, unsigned char * direction) 
+ unsigned char getMin(MAZE * maze, COORD coord, MOUSE * mouse) 
  {
    unsigned char min = MAX_DIST;
    unsigned char distN;
@@ -48,27 +48,35 @@ unsigned char isDeadEnd(const unsigned char currentBlock) {
    distS = hasSouth(maze->walls[coord.row][coord.col]) ? MAX_DIST : maze->dist[coord.row - 1][coord.col];
    distW = hasWest(maze->walls[coord.row][coord.col]) ? MAX_DIST : maze->dist[coord.row][coord.col - 1];
    
-   if(distW < min) 
-   {
-   	 min = distW;
-   	 *direction = 'W';
-   }
-   if(distS < min) 
-   {
-   	 min = distS;
-   	 *direction = 'S';
-   }
-   if(distE < min) 
-   {
-   	 min = distE;
-   	 *direction = 'E';	
-   }
-   if(distN < min)
-   {
-     min = distN;
-	 *direction = 'N';
-   }
+   unsigned char prevOrientation = mouse->orientation;
+
+   min = distN;
+   min = (distE < min) ? distE : min;
+   min = (distS < min) ? distS : min;
+   min = (distW < min) ? distW : min;
+  
+   //1. Pick the shortest route 
+   if(min == distW) 
+     mouse->orientation = 'W';
+   if(min == distS) 
+     mouse->orientation = 'S';
+   if(min == distE) 
+     mouse->orientation = 'E';
+   if(min == distN) 
+     mouse->orientation = 'N';
+
+   //2. If multiple shortest routes, route (N > E > S > W)
    
+   //3. Go Straight if possible 
+   if(min == distW && prevOrientation == 'W')
+    mouse->orientation = 'W';
+   if(min == distS && prevOrientation == 'S')
+    mouse->orientation = 'S';
+   if(min == distN && prevOrientation == 'N')
+    mouse->orientation = 'N';
+   if(min == distE && prevOrientation == 'E')
+    mouse->orientation = 'E';
+
    return min;
  }
 
@@ -83,20 +91,26 @@ unsigned char isDeadEnd(const unsigned char currentBlock) {
  * 		init - bool to determine whether or not this call is initializing the maze
  *		mouse - representation of the "mouse"
  *		
+ * Description: Flood search to starting position
+ *              Priority is given as followed:
+ *              1. Pick the shortest route
+ *              2. If multiple equally short routes, 
+ *                    choose untraced route N > E > S > W
+ *              3. Else, go straight if possible
+ *              4. Otherwise prioritize N > E > S > W
+ *              Once starting position is found, isolate known dead ends
  */
-unsigned char floodfill(MAZE * maze, COORD goal, MOUSE mouse)
+unsigned char floodfill(MAZE * maze, COORD goal, MOUSE * mouse)
 {
 	// Walls
 	//  0 0 0 0       0 0 0 0
 	//    D V T       W S E N
 	// [row] [col]
 	//  N S   W E 
-	unsigned char direction;
-
-	detectWalls(maze, mouse);
+	detectWalls(maze, *mouse);
 
 	//Return if we're at the center (direction is set to D for done)
-	if((mouse.location.row == goal.row && mouse.location.col == goal.col))
+	if((mouse->location.row == goal.row && mouse->location.col == goal.col))
 		return 'D';
 
 	//Initialize stack
@@ -105,11 +119,12 @@ unsigned char floodfill(MAZE * maze, COORD goal, MOUSE mouse)
 	//Update visited? 
 
 	//Add traces to see route 
-	if(!hasTrace(maze->walls[mouse.location.row][mouse.location.col]))
-		maze->walls[mouse.location.row][mouse.location.col] |= TRACE;
+	if(!hasTrace(maze->walls[mouse->location.row][mouse->location.col]))
+		maze->walls[mouse->location.row][mouse->location.col] |= TRACE;
 
 	//Push current cell onto stack 
-	push(&s, mouse.location);
+	push(&s, mouse->location);
+  printf("MOUSE COORD: row: %d col: %d\n", (int) mouse->location.row, (int) mouse->location.col );
 
 	//While stack isn't empty
 	while(!empty(&s))
@@ -122,7 +137,7 @@ unsigned char floodfill(MAZE * maze, COORD goal, MOUSE mouse)
 
 		printf("BEFORE: row: %d col: %d\n", (int) current.row, (int) current.col );
 		//If yes, keep popping and checking cells 
-		if(maze->dist[current.row][current.col] == (getMin(maze, current, &direction) + 1))
+		if(maze->dist[current.row][current.col] == (getMin(maze, current, mouse) + 1))
 		{
 			printf("WHY AM I IN HERE\n");
 			continue;
@@ -130,41 +145,41 @@ unsigned char floodfill(MAZE * maze, COORD goal, MOUSE mouse)
 		//If not, change cell's value to 1 + min of (accessible) neighbors,
 		else
 		{
-			maze->dist[current.row][current.col] = getMin(maze, current, &direction) + 1;
+			maze->dist[current.row][current.col] = getMin(maze, current, mouse) + 1;
 			//and push all of cell's (accessible) neighbors onto the stack.
 		    if(!hasNorth(maze->walls[current.row][current.col]))
 		    {
 		    	COORD north = current;
 		    	north.row++;
-				printf("CURR NORTH: row: %d col: %d\n", (int) north.row, (int) north.col );
+          printf("CURR NORTH: row: %d col: %d\n", (int) north.row, (int) north.col );
 		    	push(&s, north);
 		    }
 		    if(!hasEast(maze->walls[current.row][current.col]))
 		    {
 		    	COORD east = current;
 		    	east.col++;
-				printf("CURR EAST: row: %d col: %d\n", (int) east.row, (int) east.col );
+          printf("CURR EAST: row: %d col: %d\n", (int) east.row, (int) east.col );
 		    	push(&s, east);
 		    }
 		    if(!hasSouth(maze->walls[current.row][current.col]))
 		    {
 		    	COORD south = current;
 		    	south.row--;
-				printf("CURR SOUTH: row: %d col: %d\n", (int) south.row, (int) south.col );
+          printf("CURR SOUTH: row: %d col: %d\n", (int) south.row, (int) south.col );
 		    	push(&s, south);
 		    }
 		    if(!hasWest(maze->walls[current.row][current.col]))
 		    {
 		    	COORD west = current;
 		    	west.col--;
-				printf("CURR WEST: row: %d col: %d\n", (int) west.row, (int) west.col );
+          printf("CURR WEST: row: %d col: %d\n", (int) west.row, (int) west.col );
 		    	push(&s, west);
 		    }
 		}
 	}
-	getMin(maze, mouse.location, &direction);
-	printf("NEXT MOVE: GO [%c]\n", direction);	
-	return direction;
+	getMin(maze, mouse->location, mouse);
+	printf("NEXT MOVE: GO [%c]\n", mouse->orientation);	
+	return mouse->orientation;
 }
 
 void detectWalls(MAZE * maze, const MOUSE mouse) 

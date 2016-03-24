@@ -1,1 +1,4 @@
 *.gch
+*.swp
+*.swo
+*.nfs*

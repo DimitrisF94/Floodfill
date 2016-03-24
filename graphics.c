@@ -55,9 +55,11 @@ int atCenter(MAZE * maze, MOUSE mouse) {
  */
  void printGrid(const MAZE * maze) 
  {
-   for (int i = SIZE - 1; i >= 0; i--)
+  int i;
+   for (i = SIZE - 1; i >= 0; i--)
    {
-     for (int j = 0; j < SIZE; j++)
+    int j;
+     for (j = 0; j < SIZE; j++)
        printf("%3d", (int) maze->walls[i][j]);
 
     printf("\n\r");
@@ -72,11 +74,13 @@ int atCenter(MAZE * maze, MOUSE mouse) {
  */
  void visualizeGrid(const MAZE * maze, const MOUSE mouse) 
  {
+  int i;
   //Loop thru all rows  
-  for (int i = SIZE - 1; i >= 0; i--) 
+  for (i = SIZE - 1; i >= 0; i--) 
   {
+    int j;
     // Print north cell wall 
-    for (int j = 0; j < SIZE; j++) 
+    for (j = 0; j < SIZE; j++) 
     {
       if ( hasNorth(maze->walls[i][j]) )
       {
@@ -102,7 +106,7 @@ int atCenter(MAZE * maze, MOUSE mouse) {
     /*
      * Print west and east wall, object, and traces
      */
-     for (int j = 0; j < SIZE; j++) 
+     for (j = 0; j < SIZE; j++) 
      {
       // Print west wall
       if ( hasWest(maze->walls[i][j]) )
@@ -113,13 +117,13 @@ int atCenter(MAZE * maze, MOUSE mouse) {
       // Print if object present
       if ( i == mouse.location.row && j == mouse.location.col ) {
         if (mouse.orientation == 'N')
-          printf(" ^ ");
+          printf("^%02d", (int) maze->dist[i][j]);
         else if (mouse.orientation == 'E')
-          printf(" > ");
+          printf(">%02d", (int) maze->dist[i][j]);
         else if (mouse.orientation == 'S')
-          printf(" v ");
+          printf("v%02d", (int) maze->dist[i][j]);
         else if (mouse.orientation == 'W')
-          printf(" < ");
+          printf("<%02d", (int) maze->dist[i][j]);
       }
       
       // Print markers
@@ -149,7 +153,8 @@ int atCenter(MAZE * maze, MOUSE mouse) {
     // Opt to print south wall
     if (!HIDESOUTH) 
     {
-      for (int j = 0; j < SIZE; j++) 
+      int j;
+      for (j = 0; j < SIZE; j++) 
       {
         if ( hasSouth(maze->walls[i][j]) ) 
         {
@@ -177,7 +182,8 @@ int atCenter(MAZE * maze, MOUSE mouse) {
   // Print south boundary if necessary
   if(HIDESOUTH) 
   {
-    for(int i = 0; i < SIZE; i++) 
+    int i;
+    for(i = 0; i < SIZE; i++) 
     {
       if(HIDEEAST)
         printf("+---");

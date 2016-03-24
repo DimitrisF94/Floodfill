@@ -52,9 +52,9 @@ typedef struct Mouse MOUSE;
 
 //Floodfill functions -- floodfill.c
 //Returns a direction to go in
-unsigned char floodfill(MAZE * m, COORD goal, MOUSE mouse);
+unsigned char floodfill(MAZE * m, COORD goal, MOUSE * mouse);
 int atCenter(MAZE * maze, MOUSE mouse);
-unsigned char getMin(MAZE * maze, COORD coord, unsigned char * direction);
+unsigned char getMin(MAZE * maze, COORD coord, MOUSE * mouse);
 
 //Lookup functions 
 unsigned char hasNorth(unsigned char c);

@@ -16,7 +16,7 @@ int main( int argc, char * argv[] )
 	COORD goal = { .row = 7, .col = 7 };
 
 	MOUSE mouse = { 
-					.orientation = 'N', 
+					  .orientation = 'N', 
 				    .location = { .row = 0, .col = 0 }, 
 				    .traceCount = 0
 				  };
@@ -64,19 +64,19 @@ void initMaze(MAZE * m)
   m->walls[0][1] = SWALL | WWALL;
 
   // Map north wall
-  for (int j = 0; j < SIZE; j++) 
+  for (j = 0; j < SIZE; j++) 
     m->walls[SIZE-1][j] |= NWALL;
 
   // Map east wall
-  for (int i = 0; i < SIZE; i++)   
+  for (i = 0; i < SIZE; i++)   
     m->walls[i][SIZE-1] |= EWALL;
 
   // Map south wall
-  for (int j = 0; j < SIZE; j++) 
+  for (j = 0; j < SIZE; j++) 
     m->walls[0][j] |= SWALL;
 
   // Map west wall
-  for (int i = 0; i < SIZE; i++) 
+  for (i = 0; i < SIZE; i++) 
     m->walls[i][0] |= WWALL;
 }
 
@@ -129,9 +129,11 @@ void initDist(MAZE * maze)
 void readMaze(MAZE * m) 
 {
 	printf("Enter custom maze: \n");
-	for(int i = SIZE-1; i >= 0; i--)
+  int i;
+	for(i = SIZE-1; i >= 0; i--)
 	{
-		for(int j = 0; j < SIZE; j++)
+    int j;
+		for(j = 0; j < SIZE; j++)
 		{
 			int temp = 0;
 			scanf("%d", &temp);
