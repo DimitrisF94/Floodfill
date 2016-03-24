@@ -56,7 +56,7 @@ unsigned char floodfill(MAZE * m, COORD goal, MOUSE * mouse);
 int atCenter(MAZE * maze, MOUSE mouse);
 unsigned char getMin(MAZE * maze, COORD coord);
 unsigned char getDir(MAZE * maze, COORD coord, MOUSE * mouse);
-unsigned char updateDist(MAZE * maze, const MOUSE mouse, unsigned char detectedWalls);
+unsigned char updateDist(MAZE * maze, COORD coord, unsigned char detectedWalls);
 
 //Lookup functions 
 unsigned char hasNorth(unsigned char c);

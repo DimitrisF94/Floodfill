@@ -239,35 +239,35 @@ void detectWalls(MAZE * maze, const MOUSE mouse)
     wallDetected |= WWALL;
   }
   if(wallDetected)
-    updateDist(maze, mouse, wallDetected);
+    updateDist(maze, mouse.location, wallDetected);
 }
 
-unsigned char updateDist(MAZE * maze, const MOUSE mouse, unsigned char detectedWalls)
+unsigned char updateDist(MAZE * maze, COORD coord, unsigned char detectedWalls)
 {
   STACK s = { .stack = {{0}}, .top = 0 }; 
   //Push current cells and cells adjacent to new walls onto stack
-  push(&s, mouse.location);
-  if((detectedWalls & NWALL) == NWALL && mouse.location.row != SIZE - 1)
+  push(&s, coord);
+  if((detectedWalls & NWALL) == NWALL && coord.row != SIZE - 1)
   {
-    COORD north = mouse.location;
+    COORD north = coord;
     north.row++;
     push(&s, north); 
   }
-  if((detectedWalls & EWALL) == EWALL && mouse.location.col != SIZE - 1)
+  if((detectedWalls & EWALL) == EWALL && coord.col != SIZE - 1)
   {
-    COORD east = mouse.location;
+    COORD east = coord;
     east.col++;
     push(&s, east); 
   }
-  if((detectedWalls & SWALL) == SWALL && mouse.location.row != 0)
+  if((detectedWalls & SWALL) == SWALL && coord.row != 0)
   {
-    COORD south = mouse.location;
+    COORD south = coord;
     south.row--;
     push(&s, south); 
   }
-  if((detectedWalls & WWALL) == WWALL && mouse.location.col != 0)
+  if((detectedWalls & WWALL) == WWALL && coord.col != 0)
   {
-    COORD west = mouse.location;
+    COORD west = coord;
     west.col--;
     push(&s, west); 
   }
