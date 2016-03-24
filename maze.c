@@ -34,11 +34,18 @@ int main( int argc, char * argv[] )
 	//Reads in an input file with maze wall data (for simulation only) 
 	readMaze(&m);
 
+	//Prints wall info for each cell as integers 
 	printGrid(&m);
+
+	//Prints the grid with mouse location and distances to center cells
+	visualizeGrid(&m, mouse);
+
+	floodfill(&m, goal, mouse);
+	
+	printf("Grid visualization after floodfill \n");
 
 	visualizeGrid(&m, mouse);
 
-	//initDist();
 	printf("done");
 }
 
@@ -121,21 +128,7 @@ void initDist(MAZE * maze, COORD goal)
 	}	
 }
 
-/* Function name: floodfill()
- * Description: Runs the floodfill algorithm
- * Result: Sets the distance of each cell from the goal cell. 
- * Parameters: 
- * 		m - a struct holding the maze array, 
- *		goal - the coordinates of the goal in the maze
- * 		init - bool to determine whether or not this call is initializing the maze
- *		mouse - representation of the "mouse"
- *		
- */
-void floodfill(MAZE * m, COORD goal, MOUSE * mouse)
-{
-	//Initialize stack
-	STACK s = { .stack = {{0}}, .top = 0 }; 
-}
+
 
 void readMaze(MAZE * m) 
 {

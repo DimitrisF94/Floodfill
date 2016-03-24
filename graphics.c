@@ -2,35 +2,6 @@
 #include <stdio.h> //sprintf
 #include "maze.h"
 
-/* Check for north wall */
-int hasNorth(const unsigned char currentBlock) {
-  return ((currentBlock & NWALL) == NWALL)? 1 : 0;
-}
-
-/* Check for east wall */
-int hasEast(const unsigned char currentBlock) {
-  return ((currentBlock & EWALL) == EWALL)? 1 : 0;
-}
-
-/* Check for south wall */
-int hasSouth(const unsigned char currentBlock) {
-  return ((currentBlock & SWALL) == SWALL)? 1 : 0;
-}
-
-/* Check for west wall */
-int hasWest(const unsigned char currentBlock) {
-  return ((currentBlock & WWALL) == WWALL)? 1 : 0;
-}
-
-/* Check for Trace */
-int hasTrace(const unsigned char currentBlock) {
-  return ((currentBlock & TRACE) == TRACE)? 1 : 0;
-}
-
-/* Check for dead end */
-int isDeadEnd(const unsigned char currentBlock) {
-  return ((currentBlock & DE) == DE)? 1: 0;
-}
 
 /* Check if object at center, and place pseudo walls accordinglcoord.y */
 int atCenter(MAZE * maze, MOUSE mouse) {
@@ -76,31 +47,6 @@ int atCenter(MAZE * maze, MOUSE mouse) {
   else     
     return 0;
 }
-
-/* 
- * Return the smallest maze->dist from the surrounding maze->wallss
- * that are not separated bcoord.y a wall
- */
- int getMin(MAZE * maze, COORD coord) 
- {
-   int min;
-   int distN;
-   int distE;
-   int distS;
-   int distW;
-   
-   distN = hasNorth(maze->walls[coord.y][coord.x])? MAX_DIST : maze->dist[coord.y + 1][coord.x];
-   distE = hasEast(maze->walls[coord.y][coord.x])? MAX_DIST : maze->dist[coord.y][coord.x + 1];
-   distS = hasSouth(maze->walls[coord.y][coord.x])? MAX_DIST : maze->dist[coord.y - 1][coord.x];
-   distW = hasWest(maze->walls[coord.y][coord.x])? MAX_DIST : maze->dist[coord.y][coord.x - 1];
-   
-   min = distN;
-   min = (distE < min)? distE : min;
-   min = (distS < min)? distS : min;
-   min = (distW < min)? distW : min;
-   
-   return min;
- }
 
 /* 
  * Function name: printGrid()

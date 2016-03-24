@@ -1,6 +1,6 @@
 #include "maze.h"
 
-int push(STACK * s, COORD c)
+int push(STACK * s, const COORD c)
 {
 	if(full(s))
 		return 0;
@@ -10,7 +10,7 @@ int push(STACK * s, COORD c)
 	return 1;
 }
 
-int pop(STACK * s, COORD c)
+int pop(STACK * s)
 {
 	if(empty(s))
 		return 0;

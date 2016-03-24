@@ -19,7 +19,7 @@
 #define SIZE 16
 #define STACKSIZE 512
 #define MAX_BUF 8192  // print buffer
-#define MAX_DIST 128 // max distance for flood search
+#define MAX_DIST 255 // max distance for flood search
 
 struct Maze {
 	//Input maze (all walls known)
@@ -50,7 +50,11 @@ typedef struct Coord COORD;
 typedef struct Stack STACK; 
 typedef struct Mouse MOUSE;
 
-void floodfill(MAZE * m, COORD goal, MOUSE * mouse);
+//Floodfill functions -- floodfill.c
+//Returns a direction to go in
+unsigned char floodfill(MAZE * m, COORD goal, MOUSE mouse);
+int atCenter(MAZE * maze, MOUSE mouse);
+unsigned char getMin(MAZE * maze, COORD coord, unsigned char * direction);
 
 void initMaze(MAZE * maze);
 void initDist(MAZE * maze, COORD goal);
@@ -58,20 +62,18 @@ void printMaze(MAZE * maze);
 void readMaze(MAZE * m);
 
 //Stack functions -- stack.c
-int push(STACK * s, COORD c);
-int pop(STACK * s, COORD c);
+int push(STACK * s, const COORD c);
+int pop(STACK * s);
 int empty(STACK * s);
 int full(STACK * s);
 COORD top(STACK * s);
 
 //Graphic functions -- graphics.c
-int hasNorth(unsigned char c);
-int hasEast(unsigned char c);
-int hasSouth(unsigned char c);
-int hasWest(unsigned char c);
-int hasTrace(unsigned char c);
-int isDeadEnd(unsigned char c);
-int atCenter(MAZE * maze, MOUSE mouse);
-int getMin(MAZE * maze, COORD coord);
+unsigned char hasNorth(unsigned char c);
+unsigned char hasEast(unsigned char c);
+unsigned char hasSouth(unsigned char c);
+unsigned char hasWest(unsigned char c);
+unsigned char hasTrace(unsigned char c);
+unsigned char isDeadEnd(unsigned char c);
 void printGrid(MAZE * maze);
 void visualizeGrid(MAZE * maze, MOUSE mouse);
