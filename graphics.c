@@ -3,7 +3,7 @@
 #include "maze.h"
 
 
-/* Check if object at center, and place pseudo walls accordinglcoord.row */
+/* Check if object at center, and place pseudo walls accordingly */
 int atCenter(MAZE * maze, MOUSE mouse) {
   if ( (((SIZE - 1)/2 == mouse.location.col) || (SIZE/2 == mouse.location.row)) &&
    (((SIZE - 1)/2 == mouse.location.row) || (SIZE/2 == mouse.location.row)) ) {

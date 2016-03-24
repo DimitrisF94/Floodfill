@@ -7,6 +7,7 @@
 #define EWALL 2
 #define SWALL 4
 #define WWALL 8
+#define ALLWALLS 15
 #define TRACE 16
 #define DE 32
 #define VISITED 64
@@ -15,9 +16,8 @@
 //    D V T       W S E N
 // [row] [col]
 
-#define SIZE 16
-#define STACKSIZE 512
-#define MAX_BUF 8192  // print buffer
+#define SIZE 16 //size of maze 
+#define STACKSIZE 512 //max stacksize (512*2 bytes)
 #define MAX_DIST 255 // max distance for flood search
 
 struct Maze {
@@ -52,7 +52,7 @@ typedef struct Mouse MOUSE;
 
 //Floodfill functions -- floodfill.c
 //Returns a direction to go in
-unsigned char floodfill(MAZE * m, COORD goal, MOUSE * mouse);
+unsigned char floodfill(MAZE * m, MOUSE * mouse);
 int atCenter(MAZE * maze, MOUSE mouse);
 unsigned char getMin(MAZE * maze, COORD coord);
 unsigned char getDir(MAZE * maze, COORD coord, MOUSE * mouse);

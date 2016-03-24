@@ -23,10 +23,6 @@ int main( int argc, char * argv[] )
 
 	initMaze(&m);
 
-	initDist(&m);
-
-	//floodfill(&m, goal, 1, &mouse);
-
 	//Reads in an input file with maze wall data (for simulation only) 
 	readMaze(&m);
 
@@ -37,14 +33,6 @@ int main( int argc, char * argv[] )
 	visualizeGrid(&m, mouse);
 
 	mouser(&m, goal, &mouse);
-	
-	/*
-	printf("Grid visualization after floodfill \n");
-
-	visualizeGrid(&m, mouse);
-
-	printf("done");
-	*/
 }
 
 /*
@@ -88,42 +76,11 @@ void initMaze(MAZE * m)
  */
 void initDist(MAZE * maze)
 {
-	int i, j, k;
-	if (SIZE%2 == 1) 
-	{    // Odd size
-	    k = SIZE - 1;
-	    for (i = 0; i < SIZE; i++) {      
-	      for (j = 0; j < SIZE; j++) {
-	      maze->dist[i][j] = k;
-	      if (j < SIZE/2)
-	        k--;
-	      else
-	        k++;
-	      }
-	    }
-	    if (i < SIZE/2)
-	      k--;
-	    else 
-	      k++;
-	}
-	else if (SIZE%2 == 0) 
-	{   // Even size
-		k = SIZE - 2;
-		for ( i = 0; i < SIZE; i++ ) 
-		{
-		  for ( j = 0; j < SIZE; j++) {
-		    maze->dist[i][j] = k;
-		    if (j < (SIZE/2 - 1) )
-		      k--;
-		    else if ( (j > SIZE/2 - 1) && (j < SIZE-1) )
-		      k++;
-		  }
-		  if (i < SIZE/2 - 1)
-		    k--;
-		  else if ( (i > SIZE/2 - 1) && (i < SIZE-1) )
-		    k++;
-		}
-	}	
+  //Set all distances to max
+  int i, j;
+  for(i = 0; i < SIZE; i++)
+    for(j = 0; j < SIZE; j++)
+      maze->dist[i][j] = MAX_DIST;
 }
 
 void readMaze(MAZE * m) 

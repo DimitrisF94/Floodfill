@@ -7,8 +7,6 @@ int push(STACK * s, const COORD c)
 		return 0;
 
 	s->stack[s->top] = c;
-  printf("coord row: %d coord col: %d \n", c.row, c.col);
-  printf("stack row: %d stack col: %d \n", s->stack[s->top].row, s->stack[s->top].col);
 	s->top++;
 	return 1;
 }

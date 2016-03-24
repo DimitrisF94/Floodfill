@@ -125,11 +125,10 @@ unsigned char getDir(MAZE * maze, COORD coord, MOUSE * mouse)
  *              4. Otherwise prioritize N > E > S > W
  *              Once starting position is found, isolate known dead ends
  */
-unsigned char floodfill(MAZE * maze, COORD goal, MOUSE * mouse)
+unsigned char floodfill(MAZE * maze, MOUSE * mouse)
 {
-
   //Return if we're at the center (direction is set to D for done)
-  if((mouse->location.row == goal.row && mouse->location.col == goal.col))
+  if(maze->dist[mouse->location.row][mouse->location.col] == 0)
     return 'D';
 
   //Initialize stack
@@ -147,6 +146,7 @@ unsigned char floodfill(MAZE * maze, COORD goal, MOUSE * mouse)
 
   //Update visited? 
 
+  int maxTop = 0;
   //If new walls discovered --> cush current cell and adj to new walls on stack
   detectWalls(maze, *mouse);
 
@@ -158,6 +158,8 @@ unsigned char floodfill(MAZE * maze, COORD goal, MOUSE * mouse)
   //While stack isn't empty
   while(!empty(&s))
   {
+    if(maxTop < s.top)
+      maxTop = s.top;
     //pop a cell from the stack
     COORD current = top(&s);
     pop(&s);
@@ -202,6 +204,7 @@ unsigned char floodfill(MAZE * maze, COORD goal, MOUSE * mouse)
     }
   }
   getDir(maze, mouse->location, mouse);
+  printf("MAX UPDATEDIST SIZE: %d\n",maxTop);
   printf("NEXT MOVE: GO [%c]\n", mouse->orientation);	
   return mouse->orientation;
 }
@@ -245,6 +248,7 @@ void detectWalls(MAZE * maze, const MOUSE mouse)
 unsigned char updateDist(MAZE * maze, COORD coord, unsigned char detectedWalls)
 {
   STACK s = { .stack = {{0}}, .top = 0 }; 
+  int maxTop = 0;
   //Push current cells and cells adjacent to new walls onto stack
   push(&s, coord);
   if((detectedWalls & NWALL) == NWALL && coord.row != SIZE - 1)
@@ -274,6 +278,8 @@ unsigned char updateDist(MAZE * maze, COORD coord, unsigned char detectedWalls)
 
   while(!empty(&s))
   {
+    if(maxTop < s.top)
+      maxTop = s.top;
     COORD current = top(&s);
     pop(&s);
 
@@ -281,7 +287,7 @@ unsigned char updateDist(MAZE * maze, COORD coord, unsigned char detectedWalls)
     if(maze->dist[current.row][current.col] == 0)
       continue;
     //If yes, keep popping and checking cells 
-    if(maze->dist[current.row][current.col] == (getMin(maze, current) + 1))
+    else if(maze->dist[current.row][current.col] == (getMin(maze, current) + 1))
       continue;
 
     //If not, change cell's value to 1 + min of (accessible) neighbors,
@@ -315,4 +321,5 @@ unsigned char updateDist(MAZE * maze, COORD coord, unsigned char detectedWalls)
       }
     }
   }
+  printf("MAX UPDATEDIST SIZE: %d\n",maxTop);
 }
