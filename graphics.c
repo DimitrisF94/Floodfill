@@ -3,13 +3,13 @@
 #include "maze.h"
 
 
-/* Check if object at center, and place pseudo walls accordinglcoord.y */
+/* Check if object at center, and place pseudo walls accordinglcoord.row */
 int atCenter(MAZE * maze, MOUSE mouse) {
-  if ( (((SIZE - 1)/2 == mouse.location.x) || (SIZE/2 == mouse.location.y)) &&
-   (((SIZE - 1)/2 == mouse.location.y) || (SIZE/2 == mouse.location.y)) ) {
+  if ( (((SIZE - 1)/2 == mouse.location.col) || (SIZE/2 == mouse.location.row)) &&
+   (((SIZE - 1)/2 == mouse.location.row) || (SIZE/2 == mouse.location.row)) ) {
 
     // not at southwest
-    if ( !((mouse.location.y == (SIZE-1)/2) && (mouse.location.x == (SIZE-1)/2)) ) {
+    if ( !((mouse.location.row == (SIZE-1)/2) && (mouse.location.col == (SIZE-1)/2)) ) {
       maze->walls[(SIZE-1)/2][(SIZE-1)/2] |= 12;  // Place pseudo walls on all sides
       // Update adjacent walls
       maze->walls[(SIZE - 1) / 2 - 1][(SIZE - 1) / 2] |= 1;
@@ -17,7 +17,7 @@ int atCenter(MAZE * maze, MOUSE mouse) {
     }
     
     // not at northwest
-    if ( !((mouse.location.y == SIZE/2) && (mouse.location.x == (SIZE-1)/2)) ) {
+    if ( !((mouse.location.row == SIZE/2) && (mouse.location.col == (SIZE-1)/2)) ) {
       maze->walls[SIZE/2][(SIZE-1)/2] |= 9;     // Place pseudo walls on all sides     
       // Update adjacent walls
       maze->walls[SIZE / 2 + 1][(SIZE - 1) / 2] |= 4;
@@ -25,7 +25,7 @@ int atCenter(MAZE * maze, MOUSE mouse) {
     }
     
     // not at northeast
-    if ( !((mouse.location.y == SIZE/2) && (mouse.location.x == SIZE/2)) ) {
+    if ( !((mouse.location.row == SIZE/2) && (mouse.location.col == SIZE/2)) ) {
       maze->walls[SIZE/2][SIZE/2] |= 3;        // Place pseudo walls on all sides
       // Update adjacent walls
       maze->walls[SIZE / 2 + 1][SIZE / 2] |= 4;
@@ -33,7 +33,7 @@ int atCenter(MAZE * maze, MOUSE mouse) {
     }
     
     // not at southeast
-    if ( !((mouse.location.y == (SIZE-1)/2) && (mouse.location.x == SIZE/2)) ) {
+    if ( !((mouse.location.row == (SIZE-1)/2) && (mouse.location.col == SIZE/2)) ) {
       maze->walls[(SIZE-1)/2][SIZE/2] |= 4;    // Place pseudo walls on all sides     
       // Update adjacent walls
       maze->walls[(SIZE - 1) / 2 - 1][SIZE / 2] |= 1;
@@ -51,33 +51,27 @@ int atCenter(MAZE * maze, MOUSE mouse) {
 /* 
  * Function name: printGrid()
  * Description: Prints the encoded wall information starting with 
- *              the topmost row and working its way down.
+ *              the topmost row and working its w.row down.
  */
- void printGrid(MAZE * maze) 
+ void printGrid(const MAZE * maze) 
  {
-  char buffer[MAX_BUF] = {0};
-  char bufBlock[6] = {0};
-  for (int i = SIZE - 1; i >= 0; i--) {
-    for (int j = 0; j < SIZE; j++) {
-      sprintf(bufBlock, "%3d", maze->walls[i][j]);
-      strcat(buffer, bufBlock);
-    }
-    strcat(buffer, "\n");
-  }
-  printf("%s", buffer);
-}
+   for (int i = SIZE - 1; i >= 0; i--)
+   {
+     for (int j = 0; j < SIZE; j++)
+       printf("%3d", (int) maze->walls[i][j]);
+
+    printf("\n\r");
+   }
+ }
 
 /* 
  * Function name: visualizeGrid()
- * Description: Prints grid by decoding the value of
+ * Description: Prints grid .row decoding the value of
  *              each block into a specific wall configuration.
- *              Then prints the mouse's known wall layout.
+ *              Then prints the mouse's known wall l.rowout.
  */
- void visualizeGrid(MAZE * maze, MOUSE mouse) 
+ void visualizeGrid(const MAZE * maze, const MOUSE mouse) 
  {
-  char buffer[MAX_BUF] = {0};
-  char bufBlock[6] = {0};
-  
   //Loop thru all rows  
   for (int i = SIZE - 1; i >= 0; i--) 
   {
@@ -87,23 +81,23 @@ int atCenter(MAZE * maze, MOUSE mouse) {
       if ( hasNorth(maze->walls[i][j]) )
       {
         if (HIDEEAST)
-          strcat(buffer, "+---");
+          printf("+---");
         else 
-          strcat(buffer, "+---+");
+          printf("+---+");
       }
       else
       {
         if (HIDEEAST)
-          strcat(buffer, "+   ");
+          printf("+   ");
         else
-          strcat(buffer, "+   +");
+          printf("+   +");
       }
     }
 
     if (HIDEEAST)
-      strcat(buffer, "+");
+      printf("+");
 
-    strcat(buffer, "\n");
+    printf("\n\r");
 
     /*
      * Print west and east wall, object, and traces
@@ -112,49 +106,45 @@ int atCenter(MAZE * maze, MOUSE mouse) {
      {
       // Print west wall
       if ( hasWest(maze->walls[i][j]) )
-        strcat(buffer, "|");
+        printf("|");
       else
-        strcat(buffer, " ");
+        printf(" ");
       
       // Print if object present
-      if ( i == mouse.location.y && j == mouse.location.x ) {
+      if ( i == mouse.location.row && j == mouse.location.col ) {
         if (mouse.orientation == 'N')
-          strcat(buffer, " ^ ");
+          printf(" ^ ");
         else if (mouse.orientation == 'E')
-          strcat(buffer, " > ");
+          printf(" > ");
         else if (mouse.orientation == 'S')
-          strcat(buffer, " v ");
+          printf(" v ");
         else if (mouse.orientation == 'W')
-          strcat(buffer, " < ");
+          printf(" < ");
       }
       
       // Print markers
       else if ( isDeadEnd(maze->walls[i][j]) )
-        strcat(buffer, " x ");
-      else if ( hasTrace(maze->walls[i][j]) ) {
-        sprintf(bufBlock, " . ", maze->dist[i][j]);
-        strcat(buffer, bufBlock);
-      }
-      else {
-        sprintf(bufBlock, "%3d", maze->dist[i][j]);
-        strcat(buffer, bufBlock);
-      }
+        printf(" x ");
+      else if ( hasTrace(maze->walls[i][j]) )
+        printf(" . ");
+      else
+        printf("%3d", maze->dist[i][j]);
       
       // Opt to print east wall
-      if (!HIDEEAST) {
+      if (!HIDEEAST) 
+      {
         if ( hasEast(maze->walls[i][j]) )
-          strcat(buffer, "|");
+          printf("|");
         else
-          strcat(buffer, " ");
+          printf(" ");
       }
     }
     
-    // Print east boundarcoord.y if necessarcoord.y
-    if (HIDEEAST) {
-      strcat(buffer, "|");
-    }
+    // Print east boundary if necessary
+    if (HIDEEAST)
+      printf("|");
     
-    strcat(buffer, "\n");
+    printf("\n\r");
     
     // Opt to print south wall
     if (!HIDESOUTH) 
@@ -164,42 +154,40 @@ int atCenter(MAZE * maze, MOUSE mouse) {
         if ( hasSouth(maze->walls[i][j]) ) 
         {
           if (HIDEEAST) 
-            strcat(buffer, "+---");
+            printf("+---");
           else
-            strcat(buffer, "+---+");
+            printf("+---+");
         }
         else
         {
           if (HIDEEAST)
-            strcat(buffer, "+   ");
+            printf("+   ");
           else 
-            strcat(buffer, "+   +");
+            printf("+   +");
         }
       }
       
       if (HIDEEAST)
-        strcat(buffer, "+");
+        printf("+");
       
-      strcat(buffer, "\n");
+      printf("\n\r");
     }
   }
   
-  // Print south boundary if necessary 
+  // Print south boundary if necessary
   if(HIDESOUTH) 
   {
     for(int i = 0; i < SIZE; i++) 
     {
       if(HIDEEAST)
-        strcat(buffer, "+---");
+        printf("+---");
       else 
-        strcat(buffer, "+---+");     
+        printf("+---+");     
     }
 
     if (HIDEEAST)
-      strcat(buffer, "+");
+      printf("+");
 
-    strcat(buffer, "\n");
+    printf("\n\r");
   }
-  
-  printf("The maze: \n%s", buffer);
 }
