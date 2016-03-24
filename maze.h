@@ -14,7 +14,6 @@
 //  0 0 0 0       0 0 0 0
 //    D V T       W S E N
 // [row] [col]
-// [ y ] [ x ]
 
 #define SIZE 16
 #define STACKSIZE 512
@@ -31,8 +30,8 @@ struct Maze {
 };
 
 struct Coord {
-	unsigned char x;
-	unsigned char y;
+	unsigned char row;
+	unsigned char col;
 };
 
 struct Stack {
@@ -43,6 +42,7 @@ struct Stack {
 struct Mouse {
 	unsigned char orientation;
 	struct Coord location;
+	unsigned char traceCount;
 };
 
 typedef struct Maze MAZE;
@@ -56,8 +56,17 @@ unsigned char floodfill(MAZE * m, COORD goal, MOUSE mouse);
 int atCenter(MAZE * maze, MOUSE mouse);
 unsigned char getMin(MAZE * maze, COORD coord, unsigned char * direction);
 
+//Lookup functions 
+unsigned char hasNorth(unsigned char c);
+unsigned char hasEast(unsigned char c);
+unsigned char hasSouth(unsigned char c);
+unsigned char hasWest(unsigned char c);
+unsigned char hasTrace(unsigned char c);
+unsigned char isDeadEnd(unsigned char c);
+
+//Main startup functions -- maze.c 
 void initMaze(MAZE * maze);
-void initDist(MAZE * maze, COORD goal);
+void initDist(MAZE * maze);
 void printMaze(MAZE * maze);
 void readMaze(MAZE * m);
 
@@ -69,11 +78,9 @@ int full(STACK * s);
 COORD top(STACK * s);
 
 //Graphic functions -- graphics.c
-unsigned char hasNorth(unsigned char c);
-unsigned char hasEast(unsigned char c);
-unsigned char hasSouth(unsigned char c);
-unsigned char hasWest(unsigned char c);
-unsigned char hasTrace(unsigned char c);
-unsigned char isDeadEnd(unsigned char c);
-void printGrid(MAZE * maze);
-void visualizeGrid(MAZE * maze, MOUSE mouse);
+void printGrid(const MAZE * maze);
+void visualizeGrid(const MAZE * maze, const MOUSE mouse);
+
+//Virtual mouse functions -- virtualMouse.c
+void mouser(MAZE * maze, const COORD goal, MOUSE * mouse);
+void detectWalls(MAZE * maze, const MOUSE mouse);

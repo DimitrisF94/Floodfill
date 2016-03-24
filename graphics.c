@@ -126,7 +126,7 @@ int atCenter(MAZE * maze, MOUSE mouse) {
       else if ( isDeadEnd(maze->walls[i][j]) )
         printf(" x ");
       else if ( hasTrace(maze->walls[i][j]) )
-        printf(" . ");
+        printf("*%02d", (int) maze->dist[i][j]);
       else
         printf("%3d", maze->dist[i][j]);
       

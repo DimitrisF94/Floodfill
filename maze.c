@@ -2,13 +2,6 @@
 #include <stdio.h>
 #include "maze.h"
 
-/*
- * Use * for visited 
- * Use --- for n/s walls
- * Use | for w/e walls 
- * Use + for wall posts 
- */
-
 /* Driver for the micromouse program
  * Takes in 2 arguments: 
  * 1st - simulation or actual mouse run 
@@ -20,14 +13,17 @@ int main( int argc, char * argv[] )
 
 	MAZE m = { .input = {0}, .walls = {0}, .dist = {0} };
 
-	COORD goal = { .x = 3, .y = 3 };
+	COORD goal = { .row = 7, .col = 7 };
 
-	MOUSE mouse = { .orientation = 'N', 
-				    .location = { .x = 0, .y = 0 } };
+	MOUSE mouse = { 
+					.orientation = 'N', 
+				    .location = { .row = 0, .col = 0 }, 
+				    .traceCount = 0
+				  };
 
 	initMaze(&m);
 
-	initDist(&m, goal);
+	initDist(&m);
 
 	//floodfill(&m, goal, 1, &mouse);
 
@@ -40,13 +36,15 @@ int main( int argc, char * argv[] )
 	//Prints the grid with mouse location and distances to center cells
 	visualizeGrid(&m, mouse);
 
-	floodfill(&m, goal, mouse);
+	mouser(&m, goal, &mouse);
 	
+	/*
 	printf("Grid visualization after floodfill \n");
 
 	visualizeGrid(&m, mouse);
 
 	printf("done");
+	*/
 }
 
 /*
@@ -88,7 +86,7 @@ void initMaze(MAZE * m)
  *              Lower left square is (0, 0).
  *				Initializes distances starting from goal instead of mouse.
  */
-void initDist(MAZE * maze, COORD goal)
+void initDist(MAZE * maze)
 {
 	int i, j, k;
 	if (SIZE%2 == 1) 
@@ -127,8 +125,6 @@ void initDist(MAZE * maze, COORD goal)
 		}
 	}	
 }
-
-
 
 void readMaze(MAZE * m) 
 {
