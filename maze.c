@@ -18,7 +18,8 @@ int main( int argc, char * argv[] )
 	MOUSE mouse = { 
 					  .orientation = 'N', 
 				    .location = { .row = 0, .col = 0 }, 
-				    .traceCount = 0
+				    .traceCount = 0,
+            .moveCount = 0
 				  };
 
 	initMaze(&m);
