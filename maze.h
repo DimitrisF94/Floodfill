@@ -1,3 +1,6 @@
+#ifndef MAZE_H
+#define MAZE_H
+
 /* Graphics */
 #define HIDESOUTH 1   // Hide south cell wall when printing
 #define HIDEEAST 1    // Hide east cell wall when printing
@@ -99,3 +102,6 @@ void visualizeGrid(const MAZE * maze, const MOUSE mouse);
 //Virtual mouse functions -- virtualMouse.c
 void mouser(MAZE * maze, const COORD goal, MOUSE * mouse);
 void detectWalls(MAZE * maze, const MOUSE mouse);
+
+#endif
+
