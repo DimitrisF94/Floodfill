@@ -136,7 +136,10 @@ unsigned char floodfill(MAZE * maze, MOUSE * mouse)
 
   //Add traces to see route 
   if(!hasTrace(maze->walls[mouse->location.row][mouse->location.col]))
+  {
     maze->walls[mouse->location.row][mouse->location.col] |= TRACE;
+    mouse->traceCount++;
+  }
 
   // Walls
   //  0 0 0 0       0 0 0 0
