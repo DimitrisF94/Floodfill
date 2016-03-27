@@ -20,6 +20,11 @@
 #define STACKSIZE 512 //max stacksize (512*2 bytes)
 #define MAX_DIST 255 // max distance for flood search
 
+/* struct Maze holds all MM maze information
+ * - input: if running a virtual mouse, holds maze with all wall info
+ * - walls: holds all wall information known to the mouse at a specific time
+ * - dist: holds distances to the goal coordinate/tile from each tile in maze
+ */
 struct Maze {
 	//Input maze (all walls known)
 	unsigned char input [SIZE][SIZE];
@@ -29,16 +34,23 @@ struct Maze {
 	unsigned char dist [SIZE][SIZE];
 };
 
+//Struct that holds the coordinates of a tile
 struct Coord {
 	unsigned char row;
 	unsigned char col;
 };
 
+//Stack data structure implementation
 struct Stack {
 	struct Coord stack[STACKSIZE];
 	int top; //index of last item pushed on stack (if -1, stack is empty)
 };
 
+/* Mouse - representation of all data for the mouse 
+ * - orientation: direction Mouse is facing (N W E S or D for done) 
+ * - location: coordinates of the Mouse
+ * - traceCount: # of tiles traversed 
+ */
 struct Mouse {
 	unsigned char orientation;
 	struct Coord location;
