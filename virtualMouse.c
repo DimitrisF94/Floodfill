@@ -18,7 +18,7 @@ void mouser(MAZE * maze, const COORD goal, MOUSE * mouse)
   maze->dist[goal2.row][goal2.col] = 0;
   maze->dist[goal3.row][goal3.col] = 0;
   maze->dist[goal4.row][goal4.col] = 0;
-  updateDist(maze, goal1, WWALL);
+  updateDist(maze, goal1, 0);
 
 	while(maze->dist[mouse->location.row][mouse->location.col] != 0)	
 	{
@@ -57,7 +57,7 @@ void mouser(MAZE * maze, const COORD goal, MOUSE * mouse)
   COORD retGoal = { .row = 0, .col = 0 };
   COORD prev = { .row = 1, .col = 0 };
   maze->dist[retGoal.row][retGoal.col] = 0;
-  updateDist(maze, prev, 0);
+  updateDist(maze, retGoal, 0);
   visualizeGrid(maze, *mouse);
   mouse->moveCount = 0;
 
@@ -100,7 +100,7 @@ void mouser(MAZE * maze, const COORD goal, MOUSE * mouse)
   maze->dist[goal2.row][goal2.col] = 0;
   maze->dist[goal3.row][goal3.col] = 0;
   maze->dist[goal4.row][goal4.col] = 0;
-  updateDist(maze, goal1, WWALL);
+  updateDist(maze, goal1, 0);
 
   while(maze->dist[mouse->location.row][mouse->location.col] != 0)
   {

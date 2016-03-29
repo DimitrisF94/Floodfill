@@ -4,6 +4,7 @@
 
 
 /* Check if object at center, and place pseudo walls accordingly */
+/*
 int atCenter(MAZE * maze, MOUSE mouse) {
   if ( (((SIZE - 1)/2 == mouse.location.col) || (SIZE/2 == mouse.location.row)) &&
    (((SIZE - 1)/2 == mouse.location.row) || (SIZE/2 == mouse.location.row)) ) {
@@ -47,6 +48,7 @@ int atCenter(MAZE * maze, MOUSE mouse) {
   else     
     return 0;
 }
+*/
 
 /* 
  * Function name: printGrid()
