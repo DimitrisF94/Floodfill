@@ -70,6 +70,7 @@ unsigned char getDir(MAZE * maze, COORD coord, MOUSE * mouse)
   distE = hasEast(maze->walls[coord.row][coord.col]) ? MAX_DIST : maze->dist[coord.row][coord.col + 1];
   distS = hasSouth(maze->walls[coord.row][coord.col]) ? MAX_DIST : maze->dist[coord.row - 1][coord.col];
   distW = hasWest(maze->walls[coord.row][coord.col]) ? MAX_DIST : maze->dist[coord.row][coord.col - 1];
+
   // 1. Pick the shortest route
   if ( (distN < distE) && (distN < distS) && (distN < distW) )
     mouse->orientation = 'N';
@@ -84,7 +85,10 @@ unsigned char getDir(MAZE * maze, COORD coord, MOUSE * mouse)
   else if ( orientation == 'N' && !hasNorth(maze->walls[mouse->location.row][mouse->location.col]) )
     mouse->orientation = 'N';
   else if ( orientation == 'E' && !hasEast(maze->walls[mouse->location.row][mouse->location.col]) )
+  {
     mouse->orientation = 'E';
+    printf("PRIORITIZED EAST \n\n");
+  }
   else if ( orientation == 'S' && !hasSouth(maze->walls[mouse->location.row][mouse->location.col]) )
     mouse->orientation = 'S';
   else if ( orientation == 'W' && !hasWest(maze->walls[mouse->location.row][mouse->location.col]) )
@@ -102,7 +106,6 @@ unsigned char getDir(MAZE * maze, COORD coord, MOUSE * mouse)
 
   else
     printf("Stuck... Can't find center.\n");
-
 }
 
 
@@ -141,15 +144,8 @@ unsigned char floodfill(MAZE * maze, MOUSE * mouse)
     mouse->traceCount++;
   }
 
-  // Walls
-  //  0 0 0 0       0 0 0 0
-  //    D V T       W S E N
-  // [row] [col]
-  //  N S   W E 
-
-  //Update visited? 
-
   int maxTop = 0;
+
   //If new walls discovered --> cush current cell and adj to new walls on stack
   detectWalls(maze, *mouse);
 
@@ -252,7 +248,8 @@ unsigned char updateDist(MAZE * maze, COORD coord, unsigned char detectedWalls)
 {
   STACK s = { .stack = {{0}}, .top = 0 }; 
   int maxTop = 0;
-  //Push current cells and cells adjacent to new walls onto stack
+
+  //Push current cell & cells adj. to NEW walls (i.e. detectedWalls) onto stack
   push(&s, coord);
   if((detectedWalls & NWALL) == NWALL && coord.row != SIZE - 1)
   {
@@ -286,42 +283,43 @@ unsigned char updateDist(MAZE * maze, COORD coord, unsigned char detectedWalls)
     COORD current = top(&s);
     pop(&s);
 
-    //Do not update goal cells
-    if(maze->dist[current.row][current.col] == 0)
-      continue;
     //If yes, keep popping and checking cells 
-    else if(maze->dist[current.row][current.col] == (getMin(maze, current) + 1))
+    if(maze->dist[current.row][current.col] == (getMin(maze, current) + 1))
       continue;
 
-    //If not, change cell's value to 1 + min of (accessible) neighbors,
-    else
-    {
+    //If not, change cell's value to 1 + min of (accessible) neighbors, if 
+    //it's not a goal cell
+    if(maze->dist[current.row][current.col] != 0)
       maze->dist[current.row][current.col] = getMin(maze, current) + 1;
-      //and push all of cell's (accessible) neighbors onto the stack.
-      if(!hasNorth(maze->walls[current.row][current.col]))
-      {
-        COORD north = current;
-        north.row++;
+
+    //and push all of cell's (accessible) neighbors onto the stack.
+    if(!hasNorth(maze->walls[current.row][current.col]))
+    {
+      COORD north = current;
+      north.row++;
+      if(maze->dist[north.row][north.col] != 0)
         push(&s, north);
-      }
-      if(!hasEast(maze->walls[current.row][current.col]))
-      {
-        COORD east = current;
-        east.col++;
+    }
+    if(!hasEast(maze->walls[current.row][current.col]))
+    {
+      COORD east = current;
+      east.col++;
+      if(maze->dist[east.row][east.col] != 0)
         push(&s, east);
-      }
-      if(!hasSouth(maze->walls[current.row][current.col]))
-      {
-        COORD south = current;
-        south.row--;
+    }
+    if(!hasSouth(maze->walls[current.row][current.col]))
+    {
+      COORD south = current;
+      south.row--;
+      if(maze->dist[south.row][south.col] != 0)
         push(&s, south);
-      }
-      if(!hasWest(maze->walls[current.row][current.col]))
-      {
-        COORD west = current;
-        west.col--;
+    }
+    if(!hasWest(maze->walls[current.row][current.col]))
+    {
+      COORD west = current;
+      west.col--;
+      if(maze->dist[west.row][west.col] != 0)
         push(&s, west);
-      }
     }
   }
   printf("MAX UPDATEDIST SIZE: %d\n",maxTop);

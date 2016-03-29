@@ -10,15 +10,15 @@ void mouser(MAZE * maze, const COORD goal, MOUSE * mouse)
 	//  N S   W E
 	initDist(maze);
   //Set goal locations 
-	COORD goal1 = { .row = 7, .col = 7 };
-	COORD goal2 = { .row = 8, .col = 7 };
-	COORD goal3 = { .row = 7, .col = 8 };
-	COORD goal4 = { .row = 8, .col = 8 };
+	COORD goal1 = { .row = 2, .col = 2 };
+	COORD goal2 = { .row = 2, .col = 3 };
+	COORD goal3 = { .row = 3, .col = 2 };
+	COORD goal4 = { .row = 3, .col = 3 };
   maze->dist[goal1.row][goal1.col] = 0;
   maze->dist[goal2.row][goal2.col] = 0;
   maze->dist[goal3.row][goal3.col] = 0;
   maze->dist[goal4.row][goal4.col] = 0;
-  updateDist(maze, goal1, WWALL);
+  updateDist(maze, goal1, 0);
 
 	while(maze->dist[mouse->location.row][mouse->location.col] != 0)	
 	{
@@ -54,10 +54,10 @@ void mouser(MAZE * maze, const COORD goal, MOUSE * mouse)
 	}
 
 	initDist(maze);
+  visualizeGrid(maze, *mouse);
   COORD retGoal = { .row = 0, .col = 0 };
-  COORD prev = { .row = 1, .col = 0 };
   maze->dist[retGoal.row][retGoal.col] = 0;
-  updateDist(maze, prev, 0);
+  updateDist(maze, retGoal, 0);
   visualizeGrid(maze, *mouse);
   mouse->moveCount = 0;
 
@@ -100,7 +100,7 @@ void mouser(MAZE * maze, const COORD goal, MOUSE * mouse)
   maze->dist[goal2.row][goal2.col] = 0;
   maze->dist[goal3.row][goal3.col] = 0;
   maze->dist[goal4.row][goal4.col] = 0;
-  updateDist(maze, goal1, WWALL);
+  updateDist(maze, goal1, 0);
 
   while(maze->dist[mouse->location.row][mouse->location.col] != 0)
   {
