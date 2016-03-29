@@ -288,25 +288,7 @@ unsigned char updateDist(MAZE * maze, COORD coord, unsigned char detectedWalls)
 
     //Do not update goal cells
     if(maze->dist[current.row][current.col] == 0)
-    {
-      COORD north = current;
-      north.row++;
-      if(maze->dist[north.row][north.col] != 0)
-        push(&s, north); 
-      COORD east = current;
-      east.col++;
-      if(maze->dist[east.row][east.col] != 0)
-        push(&s, east); 
-      COORD south = current;
-      south.row--;
-      if(maze->dist[south.row][south.col] != 0)
-        push(&s, south); 
-      COORD west = current;
-      west.col--;
-      if(maze->dist[west.row][west.col] != 0)
-        push(&s, west); 
       continue;
-    }
     //If yes, keep popping and checking cells 
     else if(maze->dist[current.row][current.col] == (getMin(maze, current) + 1))
       continue;

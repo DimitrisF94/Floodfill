@@ -19,7 +19,7 @@
 //    D V T       W S E N
 // [row] [col]
 
-#define SIZE 16 //size of maze 
+#define SIZE 8 //size of maze 
 #define STACKSIZE 512 //max stacksize (512*2 bytes)
 #define MAX_DIST 255 // max distance for flood search
 
